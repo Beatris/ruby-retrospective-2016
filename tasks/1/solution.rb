@@ -22,11 +22,11 @@ end
 
 DEFAULT_UNIT = 'C'
 SUBSTANCE_TEMPERATURES = {
-  'water' => {melting_temp: 0, boiling_temp: 100},
-  'ethanol' => {melting_temp: -114, boiling_temp: 78.37},
-  'gold' => {melting_temp: 1064, boiling_temp: 2700},
-  'silver' => {melting_temp: 961.8, boiling_temp: 2162},
-  'copper' => {melting_temp: 1085, boiling_temp: 2567},
+  'water'   => {melting_temp: 0,     boiling_temp: 100},
+  'ethanol' => {melting_temp: -114,  boiling_temp: 78.37},
+  'gold'    => {melting_temp: 1064,  boiling_temp: 2700},
+  'silver'  => {melting_temp: 961.8, boiling_temp: 2162},
+  'copper'  => {melting_temp: 1085,  boiling_temp: 2567},
 }
 
 def melting_point_of_substance(substance, unit)
