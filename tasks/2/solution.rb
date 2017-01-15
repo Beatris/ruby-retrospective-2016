@@ -1,25 +1,27 @@
 class Hash
   def fetch_deep(path)
-    head, tail = *path.strip.reverse.chomp('.').reverse.chomp('.').split('.', 2)
-    value = [dig(head), dig(head.to_sym)].find(&:itself)
+    head, tail = path.split('.', 2)
+    value = self[head.to_s] || self[head.to_sym]
     return value unless tail
-    if value.is_a?(Hash)
-      value.fetch_deep(tail)
-    elsif value.is_a?(Array)
-      Hash[(0..(value.size - 1)).map { |x| x.to_s }.zip(value)].fetch_deep(tail)
-    end
+    value.fetch_deep(tail) if value
   end
 
   def reshape(structure)
-    result = structure.clone
-    result.each do |key, value|
-      result[key] = value.is_a?(Hash) ? self.reshape(value) : fetch_deep(value)
-    end
+    return fetch_deep(structure) if structure.is_a? String
+    structure.map do |key, value|
+      [key, self.reshape(value)]
+    end.to_h
   end
 end
 
 class Array
   def reshape(structure)
-    each_with_index { |val, index| self[index] = val.reshape(structure) }
+    map { |val| val.reshape(structure) }
+  end
+
+  def fetch_deep(path)
+    head, tail = path.split('.', 2)
+    element = self[head.to_i]
+    element.fetch_deep(tail) if element
   end
 end
