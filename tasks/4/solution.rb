@@ -30,6 +30,7 @@ RSpec.describe 'Version' do
       expect { Version.new('2..1') }.to raise_error(ArgumentError, msg)
     end
   end
+
   describe '#to_s' do
     it 'returns the version string' do
       expect(Version.new('1.1.5').to_s).to eql('1.1.5')
@@ -40,6 +41,7 @@ RSpec.describe 'Version' do
       expect(Version.new('1.0.0').to_s).to eql('1')
     end
   end
+
   describe '#>' do
     it 'checks if the first version is greater than the second one' do
       expect(Version.new('1.1.0') > Version.new('1')).to be true
@@ -49,6 +51,7 @@ RSpec.describe 'Version' do
       expect(v1 > v2).to be false
     end
   end
+
   describe '#>=' do
     it 'checks if the first version is greater or equal than the second one' do
       expect(Version.new('1.0.1') >= Version.new('1')).to be true
@@ -58,6 +61,7 @@ RSpec.describe 'Version' do
       expect(v1 >= v2).to be true
     end
   end
+
   describe '#<' do
     it 'checks if the first version is less than the second one' do
       expect(Version.new('1.1.0') < Version.new('1')).to be false
@@ -66,6 +70,7 @@ RSpec.describe 'Version' do
       expect(v1 < Version.new('1.3.1')).to be false
     end
   end
+
   describe '#<=' do
     it 'checks if the first version is less than or equal to the second one' do
       expect(Version.new('1.1.0') <= Version.new('1')).to be false
@@ -74,6 +79,7 @@ RSpec.describe 'Version' do
       expect(v1 <= Version.new('1.3.1')).to be true
     end
   end
+
   describe '#==' do
     it 'checks if the two versions are equal' do
       v1 = Version.new('5.3.1')
@@ -83,6 +89,7 @@ RSpec.describe 'Version' do
       expect(Version.new('0.1.2') == Version.new('0.2.1.0')).to be false
     end
   end
+
   describe '#<=>' do
     it 'returns if the first is less than, greater than or equals the second' do
       v1 = Version.new('5.3.1')
@@ -92,26 +99,28 @@ RSpec.describe 'Version' do
       expect(Version.new('2') <=> Version.new('0.2.1')).to be 1
     end
   end
+
   describe '#components' do
     it 'returns the components of the version' do
-      expect(Version.new('').components).to match_array []
-      expect(Version.new('1.1.2').components).to match_array [1, 1, 2]
+      expect(Version.new('').components).to eq []
+      expect(Version.new('1.1.2').components).to eq [1, 1, 2]
     end
     it 'ignores 0 components at the end' do
-      expect(Version.new('3.2.1.0').components).to match_array [3, 2, 1]
-      expect(Version.new('3.0.0').components).to match_array [3]
+      expect(Version.new('3.2.1.0').components).to eq [3, 2, 1]
+      expect(Version.new('3.0.0').components).to eq [3]
     end
     it 'handles optional argument for the number of components wanted' do
-      expect(Version.new('3.2.1').components(N = 1)).to match_array [3]
-      expect(Version.new('0.1.2').components(3)).to match_array [0, 1, 2]
-      expect(Version.new('2').components(2)).to match_array [2, 0]
+      expect(Version.new('3.2.1').components(N = 1)).to eq [3]
+      expect(Version.new('0.1.2').components(3)).to eq [0, 1, 2]
+      expect(Version.new('2').components(2)).to eq [2, 0]
     end
     it 'does not modify the version' do
-      v1 = Version.new('0.1.2')
-      v1.freeze
-      expect { v1.components }.to_not raise_error
+      v1 = Version.new("2.0.3.0.0")
+      v1.components << "baba"
+      expect(v1.components).to eq [2, 0, 3]
     end
   end
+
   describe "Range" do
     describe '#new' do
       it 'creates an instance from valid Version objects' do
@@ -139,6 +148,7 @@ RSpec.describe 'Version' do
           .to raise_error(ArgumentError, msg)
       end
     end
+
     describe '#include?' do
       before(:each) do
         @from_1_to_3 = Version::Range.new('1', '3')
@@ -157,14 +167,12 @@ RSpec.describe 'Version' do
         expect { @from_1_to_3.include? 'a.b.c' }.to raise_error(ArgumentError)
       end
     end
+
     describe '#to_a' do
       it 'generates all versions from the beginning to the end' do
-        range = Version::Range.new('1.1.0', '1.2')
-        expect(range.map(&:to_s)).to match_array(
-          [
-            '1.1', '1.1.1', '1.1.2', '1.1.3', '1.1.4',
-            '1.1.5', '1.1.6', '1.1.7', '1.1.8', '1.1.9'
-          ]
+        range = Version::Range.new('1.1.9', '1.2.2')
+        expect(range.to_a).to eq(
+          [Version.new('1.1.9'), Version.new('1.2.0'), Version.new('1.2.1')]
         )
       end
     end
