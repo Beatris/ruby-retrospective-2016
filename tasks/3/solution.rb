@@ -102,9 +102,10 @@ class CommandParser
   end
 
   def help
-    "Usage: #{@name} " \
-    "#{@arguments.map(&:to_s).join(' ')}" \
-    "#{@options.map { |x| "\n" + x.to_s }.join('')}" \
-    "#{@options_with_parameters.map { |x| "\n" + x.to_s }.join('')}"
+    [
+      ["Usage: #{@name}", @arguments.join(' ')].join(' '),
+      @options.join("\n"),
+      @options_with_parameters.join("\n")
+    ].join("\n")
   end
 end
