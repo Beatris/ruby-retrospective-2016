@@ -63,17 +63,20 @@ class CommandParser
   def parse_options_with_parameters(argv)
     argv.select do |arg|
       arg.start_with?('--') && arg.include?('=') ||
-      arg =~ /^-[[:alnum:]]/ && arg.size > 2
+      arg =~ /^-[[:alpha:]]/ && arg.size > 2
+    end
+  end
+
+  def extract_options_with_parameter(option_names)
+    option_names.map do |arg|
+      arg.include?('=') ? arg[2..-1].split('=') : [arg[1], arg[2..-1]]
     end
   end
 
   def call_options_with_parameters(option_names, runner)
-    option_pairs = option_names.map do |arg|
-      arg.include?('=') ? arg[2..-1].split('=') : [arg[1], arg[2..-1]]
-    end
-    option_pairs.each do |name, value|
+    extract_options_with_parameter(option_names).each do |name, value|
       option = @options_with_parameters.find { |opt| opt.name_match?(name) }
-      option ? option.call(runner, value) : nil
+      option.call(runner, value) if option
     end
   end
 
@@ -84,7 +87,7 @@ class CommandParser
   def call_options(option_names, runner)
     option_names.map { |opt| opt.gsub(/^-+/, '') }.each do |name|
       option = @options.find { |opt| opt.name_match?(name) }
-      option ? option.call(runner, true) : nil
+      option.call(runner, true) if option
     end
   end
 
@@ -95,17 +98,20 @@ class CommandParser
   def parse(command_runner, argv)
     options_with_parameter = parse_options_with_parameters(argv)
     call_options_with_parameters(options_with_parameter, command_runner)
-    options = parse_options(argv - options_with_parameter)
+    argv -= options_with_parameter
+
+    options = parse_options(argv)
     call_options(options, command_runner)
-    args = argv - options
-    call_arguments(args, command_runner)
+    argv -= options
+
+    call_arguments(argv, command_runner)
   end
 
   def help
     [
-      ["Usage: #{@name}", @arguments.join(' ')].join(' '),
+      ["Usage: #{@name}", @arguments.join(' ')].reject(&:empty?).join(' '),
       @options.join("\n"),
-      @options_with_parameters.join("\n")
-    ].join("\n")
+      @options_with_parameters.join("\n"),
+    ].reject(&:empty?).join("\n")
   end
 end
